@@ -15,6 +15,8 @@ import {
   type BirthChart,
   type InsertBirthChart
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -101,7 +103,9 @@ export class MemStorage implements IStorage {
       createdAt: new Date(),
       birthDate: null,
       birthTime: null,
-      birthPlace: null
+      birthPlace: null,
+      firstName: insertUser.firstName || null,
+      lastName: insertUser.lastName || null
     };
     this.users.set(id, user);
     return user;
@@ -126,7 +130,11 @@ export class MemStorage implements IStorage {
   
   async createBlogPost(post: InsertBlogPost): Promise<BlogPost> {
     const id = this.blogPostIdCounter++;
-    const blogPost: BlogPost = { ...post, id };
+    const blogPost: BlogPost = { 
+      ...post, 
+      id, 
+      publishedAt: post.publishedAt || new Date() 
+    };
     this.blogPosts.set(id, blogPost);
     return blogPost;
   }
@@ -408,4 +416,93 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database Storage class
+export class DatabaseStorage implements IStorage {
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+  
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+  
+  // Blog methods
+  async getAllBlogPosts(): Promise<BlogPost[]> {
+    return await db.select().from(blogPosts).orderBy(desc(blogPosts.publishedAt));
+  }
+  
+  async getBlogPostById(id: number): Promise<BlogPost | undefined> {
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.id, id));
+    return post;
+  }
+  
+  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
+    return post;
+  }
+  
+  async createBlogPost(post: InsertBlogPost): Promise<BlogPost> {
+    const [blogPost] = await db.insert(blogPosts).values(post).returning();
+    return blogPost;
+  }
+  
+  // Zodiac methods
+  async getAllZodiacSigns(): Promise<ZodiacSign[]> {
+    return await db.select().from(zodiacSigns);
+  }
+  
+  async getZodiacSignById(id: number): Promise<ZodiacSign | undefined> {
+    const [sign] = await db.select().from(zodiacSigns).where(eq(zodiacSigns.id, id));
+    return sign;
+  }
+  
+  async getZodiacSignByName(name: string): Promise<ZodiacSign | undefined> {
+    const [sign] = await db.select().from(zodiacSigns).where(eq(zodiacSigns.name, name));
+    return sign;
+  }
+  
+  async createZodiacSign(sign: InsertZodiacSign): Promise<ZodiacSign> {
+    const [zodiacSign] = await db.insert(zodiacSigns).values(sign).returning();
+    return zodiacSign;
+  }
+  
+  // Contact methods
+  async createContactMessage(message: InsertContactMessage): Promise<ContactMessage> {
+    const [contactMessage] = await db.insert(contactMessages).values(message).returning();
+    return contactMessage;
+  }
+  
+  // Birth Chart methods
+  async createBirthChart(chart: InsertBirthChart): Promise<BirthChart> {
+    const [birthChart] = await db.insert(birthCharts).values(chart).returning();
+    return birthChart;
+  }
+  
+  async getBirthChartsByUserId(userId: number): Promise<BirthChart[]> {
+    return await db.select()
+      .from(birthCharts)
+      .where(eq(birthCharts.userId, userId))
+      .orderBy(desc(birthCharts.createdAt));
+  }
+  
+  async getBirthChartById(id: number): Promise<BirthChart | undefined> {
+    const [chart] = await db.select().from(birthCharts).where(eq(birthCharts.id, id));
+    return chart;
+  }
+}
+
+// Use DatabaseStorage instead of MemStorage
+export const storage = new DatabaseStorage();
