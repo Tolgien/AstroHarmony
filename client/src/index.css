@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap');
+
+:root {
+  --background: 234 37% 12%;
+  --foreground: 211 100% 99%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 30 14% 14%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 269 52% 37%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 234 34% 18%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 41 74% 69%;
+  --accent-foreground: 240 5.9% 10%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+  --radius: 0.5rem;
+  --chart-1: 269 52% 37%;
+  --chart-2: 234 34% 18%;
+  --chart-3: 41 74% 69%;
+  --chart-4: 210 100% 50%;
+  --chart-5: 290 70% 30%;
+  --sidebar-background: 234 37% 12%;
+  --sidebar-foreground: 211 100% 99%;
+  --sidebar-primary: 269 52% 37%;
+  --sidebar-primary-foreground: 211 100% 99%;
+  --sidebar-accent: 41 74% 69%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 240 4.9% 83.9%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Nunito Sans', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+/* Cosmic background */
+.cosmic-bg {
+  @apply bg-background relative overflow-hidden;
+  background: linear-gradient(to bottom, hsl(234, 37%, 12%), hsl(234, 34%, 18%));
+  background-attachment: fixed;
+}
+
+.header-blur {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Animation classes */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes slideIn {
+  0% { opacity: 0; transform: translateX(50px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-twinkle {
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+.animate-rotate-slow {
+  animation: rotate 30s linear infinite;
+}
+
+.slide-in {
+  animation: slideIn 0.8s ease-out forwards;
+}
+
+.zodiac-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(14, 13, 36, 0.3);
+}
+
+/* Star styles */
+.star {
+  position: absolute;
+  background-color: #fff;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* Hiding scrollbar but allowing scroll */
+::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
