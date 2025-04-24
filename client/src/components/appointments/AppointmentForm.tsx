@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -68,7 +68,7 @@ interface AppointmentFormProps {
 const AppointmentForm = ({ userId }: AppointmentFormProps) => {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
   const timeslots = [
@@ -104,7 +104,7 @@ const AppointmentForm = ({ userId }: AppointmentFormProps) => {
       
       // Kullanıcı oturum açmışsa, randevularını göster
       if (userId) {
-        navigate("/appointments");
+        setLocation("/appointments");
       } else {
         // Form temizlenir
         form.reset();

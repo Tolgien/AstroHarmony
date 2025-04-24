@@ -17,6 +17,8 @@ import BlogPost from "@/pages/BlogPost";
 import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import Appointments from "@/pages/Appointments";
+import BookAppointment from "@/pages/BookAppointment";
 
 function Router() {
   return (
@@ -34,6 +36,8 @@ function Router() {
         <Route path="/contact" component={Contact} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
+        <Route path="/appointments" component={Appointments} />
+        <Route path="/book-appointment" component={BookAppointment} />
         <Route component={NotFound} />
       </Switch>
       <Footer />
