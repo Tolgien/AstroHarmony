@@ -76,12 +76,14 @@ export class MemStorage implements IStorage {
     this.zodiacSigns = new Map();
     this.contactMessages = new Map();
     this.birthCharts = new Map();
+    this.appointments = new Map();
     
     this.userIdCounter = 1;
     this.blogPostIdCounter = 1;
     this.zodiacSignIdCounter = 1;
     this.contactMessageIdCounter = 1;
     this.birthChartIdCounter = 1;
+    this.appointmentIdCounter = 1;
     
     // Initialize with zodiac signs data
     this.initializeZodiacSigns();
@@ -196,6 +198,45 @@ export class MemStorage implements IStorage {
   
   async getBirthChartById(id: number): Promise<BirthChart | undefined> {
     return this.birthCharts.get(id);
+  }
+  
+  // Appointment methods
+  async createAppointment(appointment: InsertAppointment): Promise<Appointment> {
+    const id = this.appointmentIdCounter++;
+    const newAppointment: Appointment = { 
+      ...appointment, 
+      id, 
+      confirmed: false,
+      completed: false,
+      createdAt: new Date(),
+      notes: appointment.notes || null
+    };
+    this.appointments.set(id, newAppointment);
+    return newAppointment;
+  }
+  
+  async getAppointmentsByUserId(userId: number): Promise<Appointment[]> {
+    return Array.from(this.appointments.values())
+      .filter(appointment => appointment.userId === userId)
+      .sort((a, b) => new Date(a.appointmentDate).getTime() - new Date(b.appointmentDate).getTime());
+  }
+  
+  async getAppointmentById(id: number): Promise<Appointment | undefined> {
+    return this.appointments.get(id);
+  }
+  
+  async updateAppointmentStatus(id: number, confirmed: boolean, completed: boolean): Promise<Appointment | undefined> {
+    const appointment = this.appointments.get(id);
+    if (!appointment) return undefined;
+    
+    const updatedAppointment: Appointment = {
+      ...appointment,
+      confirmed,
+      completed
+    };
+    
+    this.appointments.set(id, updatedAppointment);
+    return updatedAppointment;
   }
   
   // Initialize data
@@ -512,6 +553,32 @@ export class DatabaseStorage implements IStorage {
   async getBirthChartById(id: number): Promise<BirthChart | undefined> {
     const [chart] = await db.select().from(birthCharts).where(eq(birthCharts.id, id));
     return chart;
+  }
+  
+  // Appointment methods
+  async createAppointment(appointment: InsertAppointment): Promise<Appointment> {
+    const [newAppointment] = await db.insert(appointments).values(appointment).returning();
+    return newAppointment;
+  }
+  
+  async getAppointmentsByUserId(userId: number): Promise<Appointment[]> {
+    return await db.select()
+      .from(appointments)
+      .where(eq(appointments.userId, userId))
+      .orderBy(appointments.appointmentDate);
+  }
+  
+  async getAppointmentById(id: number): Promise<Appointment | undefined> {
+    const [appointment] = await db.select().from(appointments).where(eq(appointments.id, id));
+    return appointment;
+  }
+  
+  async updateAppointmentStatus(id: number, confirmed: boolean, completed: boolean): Promise<Appointment | undefined> {
+    const [updatedAppointment] = await db.update(appointments)
+      .set({ confirmed, completed })
+      .where(eq(appointments.id, id))
+      .returning();
+    return updatedAppointment;
   }
 }
 

@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertContactMessageSchema, insertBirthChartSchema } from "@shared/schema";
+import { insertUserSchema, insertContactMessageSchema, insertBirthChartSchema, insertAppointmentSchema } from "@shared/schema";
 import nodemailer from "nodemailer";
 
 // For development - use a test SMTP server
@@ -196,6 +196,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(birthCharts);
     } catch (error) {
       res.status(500).json({ message: "Error fetching birth charts" });
+    }
+  });
+
+  // Appointment API
+  apiRouter.post("/api/appointments", async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertAppointmentSchema.parse(req.body);
+      
+      const appointment = await storage.createAppointment(validatedData);
+      
+      // Send email notification (in development, just log)
+      try {
+        await devTransporter.sendMail({
+          from: "appointments@astrosight.com",
+          to: validatedData.email,
+          subject: "Randevu Talebi Alındı",
+          text: `Sayın ${validatedData.fullName},\n\nRandevu talebiniz alınmıştır. Randevu detaylarınız aşağıdaki gibidir:\n\nTarih: ${validatedData.appointmentDate}\nSaat: ${validatedData.appointmentTime}\nRandevu Türü: ${validatedData.appointmentType}\n\nRandevunuz onaylandığında size bilgilendirme e-postası gönderilecektir.\n\nTeşekkürler,\nAstro Sight Ekibi`
+        });
+      } catch (emailError) {
+        console.error("Error sending appointment confirmation email:", emailError);
+        // Continue anyway, we've stored the appointment
+      }
+      
+      res.status(201).json({
+        message: "Randevu talebiniz başarıyla alınmıştır. Size en kısa sürede dönüş yapılacaktır.",
+        appointmentId: appointment.id
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Randevu oluşturulurken bir hata oluştu" });
+      }
+    }
+  });
+
+  apiRouter.get("/api/users/:userId/appointments", async (req: Request, res: Response) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Geçersiz kullanıcı ID" });
+      }
+      
+      const appointments = await storage.getAppointmentsByUserId(userId);
+      
+      res.json(appointments);
+    } catch (error) {
+      res.status(500).json({ message: "Randevuları getirirken bir hata oluştu" });
+    }
+  });
+
+  apiRouter.get("/api/appointments/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Geçersiz randevu ID" });
+      }
+      
+      const appointment = await storage.getAppointmentById(id);
+      
+      if (!appointment) {
+        return res.status(404).json({ message: "Randevu bulunamadı" });
+      }
+      
+      res.json(appointment);
+    } catch (error) {
+      res.status(500).json({ message: "Randevu bilgilerini getirirken bir hata oluştu" });
+    }
+  });
+
+  apiRouter.patch("/api/appointments/:id/status", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Geçersiz randevu ID" });
+      }
+      
+      const { confirmed, completed } = req.body;
+      
+      if (typeof confirmed !== 'boolean' || typeof completed !== 'boolean') {
+        return res.status(400).json({ message: "confirmed ve completed alanları boolean tipinde olmalıdır" });
+      }
+      
+      const updatedAppointment = await storage.updateAppointmentStatus(id, confirmed, completed);
+      
+      if (!updatedAppointment) {
+        return res.status(404).json({ message: "Randevu bulunamadı" });
+      }
+      
+      // If the appointment is confirmed, send confirmation email
+      if (confirmed && !completed) {
+        try {
+          await devTransporter.sendMail({
+            from: "appointments@astrosight.com",
+            to: updatedAppointment.email,
+            subject: "Randevunuz Onaylandı",
+            text: `Sayın ${updatedAppointment.fullName},\n\nRandevunuz onaylanmıştır. Randevu detaylarınız aşağıdaki gibidir:\n\nTarih: ${updatedAppointment.appointmentDate}\nSaat: ${updatedAppointment.appointmentTime}\nRandevu Türü: ${updatedAppointment.appointmentType}\n\nGörüşmek üzere,\nAstro Sight Ekibi`
+          });
+        } catch (emailError) {
+          console.error("Error sending appointment confirmation email:", emailError);
+          // Continue anyway
+        }
+      }
+      
+      res.json(updatedAppointment);
+    } catch (error) {
+      res.status(500).json({ message: "Randevu durumunu güncellerken bir hata oluştu" });
     }
   });
 
