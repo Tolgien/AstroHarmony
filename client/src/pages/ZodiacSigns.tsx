@@ -16,7 +16,7 @@ import {
 
 const ZodiacSigns = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [elementFilter, setElementFilter] = useState("");
+  const [elementFilter, setElementFilter] = useState("all");
   
   const { data: zodiacSigns, isLoading, error } = useQuery<ZodiacSign[]>({
     queryKey: ["/api/zodiac-signs"],
@@ -25,13 +25,13 @@ const ZodiacSigns = () => {
   // Filter zodiac signs based on search term and element filter
   const filteredSigns = zodiacSigns?.filter(sign => {
     const matchesSearch = sign.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesElement = elementFilter ? sign.element === elementFilter : true;
+    const matchesElement = elementFilter === "all" ? true : sign.element === elementFilter;
     return matchesSearch && matchesElement;
   });
   
   // Get unique elements for filter dropdown
   const uniqueElements = zodiacSigns 
-    ? [...new Set(zodiacSigns.map(sign => sign.element))]
+    ? Array.from(new Set(zodiacSigns.map(sign => sign.element)))
     : [];
   
   return (
@@ -71,7 +71,7 @@ const ZodiacSigns = () => {
               <SelectValue placeholder="Element" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tüm Elementler</SelectItem>
+              <SelectItem value="all">Tüm Elementler</SelectItem>
               {uniqueElements.map((element) => (
                 <SelectItem key={element} value={element}>{element}</SelectItem>
               ))}

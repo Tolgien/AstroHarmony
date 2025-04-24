@@ -87,14 +87,14 @@ const BlogSection = () => {
         
         <div className="text-center mt-12">
           <Link href="/blog">
-            <motion.a 
-              className="inline-block px-6 py-3 border border-accent text-accent hover:bg-accent hover:text-secondary rounded-full transition-all"
+            <motion.div 
+              className="inline-block px-6 py-3 border border-accent text-accent hover:bg-accent hover:text-secondary rounded-full transition-all cursor-pointer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               Tüm Yazıları Görüntüle
               <ArrowRight className="inline ml-2 h-4 w-4" />
-            </motion.a>
+            </motion.div>
           </Link>
         </div>
       </div>
