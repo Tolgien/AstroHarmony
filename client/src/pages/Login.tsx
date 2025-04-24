@@ -166,17 +166,17 @@ const Login = () => {
             
             <CardFooter className="flex flex-col space-y-4">
               <div className="text-sm text-center text-muted-foreground">
-                <a href="#" className="text-accent hover:underline">
+                <span className="text-accent hover:underline cursor-pointer">
                   Şifrenizi mi unuttunuz?
-                </a>
+                </span>
               </div>
               
               <div className="text-sm text-center">
                 Hesabınız yok mu?{" "}
                 <Link href="/register">
-                  <a className="text-accent font-medium hover:underline">
+                  <span className="text-accent font-medium hover:underline cursor-pointer">
                     Hemen Kaydolun
-                  </a>
+                  </span>
                 </Link>
               </div>
             </CardFooter>

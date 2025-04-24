@@ -263,8 +263,8 @@ const Register = () => {
                         <div className="space-y-1 leading-none">
                           <FormLabel>
                             <span>
-                              <a href="#" className="text-accent hover:underline">Kullanım koşullarını</a> ve{" "}
-                              <a href="#" className="text-accent hover:underline">Gizlilik politikasını</a> okudum ve kabul ediyorum.
+                              <span className="text-accent hover:underline cursor-pointer">Kullanım koşullarını</span> ve{" "}
+                              <span className="text-accent hover:underline cursor-pointer">Gizlilik politikasını</span> okudum ve kabul ediyorum.
                             </span>
                           </FormLabel>
                           <FormMessage />
@@ -292,9 +292,9 @@ const Register = () => {
               <div className="text-sm text-center">
                 Zaten bir hesabınız var mı?{" "}
                 <Link href="/login">
-                  <a className="text-accent font-medium hover:underline">
+                  <span className="text-accent font-medium hover:underline cursor-pointer">
                     Giriş Yapın
-                  </a>
+                  </span>
                 </Link>
               </div>
             </CardFooter>

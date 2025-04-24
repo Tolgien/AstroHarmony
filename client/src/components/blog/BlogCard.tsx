@@ -31,13 +31,13 @@ const BlogCard = ({ post }: BlogCardProps) => {
       variants={cardVariants}
     >
       <Link href={`/blog/${post.slug}`}>
-        <a className="block h-48 overflow-hidden">
+        <div className="block h-48 overflow-hidden cursor-pointer">
           <img 
             src={post.imageUrl} 
             alt={post.title} 
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
           />
-        </a>
+        </div>
       </Link>
       <div className="p-6">
         <div className="flex items-center mb-4">
@@ -46,16 +46,16 @@ const BlogCard = ({ post }: BlogCardProps) => {
           <span className="text-xs text-muted-foreground">{post.category}</span>
         </div>
         <Link href={`/blog/${post.slug}`}>
-          <a className="block">
+          <div className="block cursor-pointer">
             <h3 className="text-xl font-heading font-bold mb-3 hover:text-accent transition-colors">{post.title}</h3>
-          </a>
+          </div>
         </Link>
         <p className="text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
         <Link href={`/blog/${post.slug}`}>
-          <a className="text-accent hover:underline inline-flex items-center group">
+          <div className="text-accent hover:underline inline-flex items-center group cursor-pointer">
             <span>Devamını Oku</span>
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </a>
+          </div>
         </Link>
       </div>
     </motion.article>
