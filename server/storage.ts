@@ -13,7 +13,10 @@ import {
   type InsertContactMessage,
   birthCharts,
   type BirthChart,
-  type InsertBirthChart
+  type InsertBirthChart,
+  appointments,
+  type Appointment,
+  type InsertAppointment
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc } from "drizzle-orm";
@@ -44,6 +47,12 @@ export interface IStorage {
   createBirthChart(chart: InsertBirthChart): Promise<BirthChart>;
   getBirthChartsByUserId(userId: number): Promise<BirthChart[]>;
   getBirthChartById(id: number): Promise<BirthChart | undefined>;
+  
+  // Appointment methods
+  createAppointment(appointment: InsertAppointment): Promise<Appointment>;
+  getAppointmentsByUserId(userId: number): Promise<Appointment[]>;
+  getAppointmentById(id: number): Promise<Appointment | undefined>;
+  updateAppointmentStatus(id: number, confirmed: boolean, completed: boolean): Promise<Appointment | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -52,12 +61,14 @@ export class MemStorage implements IStorage {
   private zodiacSigns: Map<number, ZodiacSign>;
   private contactMessages: Map<number, ContactMessage>;
   private birthCharts: Map<number, BirthChart>;
+  private appointments: Map<number, Appointment>;
   
   private userIdCounter: number;
   private blogPostIdCounter: number;
   private zodiacSignIdCounter: number;
   private contactMessageIdCounter: number;
   private birthChartIdCounter: number;
+  private appointmentIdCounter: number;
 
   constructor() {
     this.users = new Map();
